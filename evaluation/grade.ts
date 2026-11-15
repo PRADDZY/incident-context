@@ -80,12 +80,12 @@ export function fixedWorkflowCalls(task: EvaluationTask, plan: Plan): ToolCall[]
 }
 
 // Nearest-rank quantiles include HTTP plan round-trip time, not execution time.
-export function summarize(mode: Mode, rows: CaseMetrics[]): EvaluationRow {
+export function summarize(mode: Mode, rows: CaseMetrics[], successMetric: 'executorSuccess' | 'observationSuccess' = 'executorSuccess'): EvaluationRow {
   const timings = rows.map(row => row.planLatencyMs).sort((a, b) => a - b);
   const quantile = (p: number) => timings.length ? timings[Math.max(0, Math.ceil(p * timings.length) - 1)] : 0;
   return {
     mode, tasks: rows.length,
-    successes: rows.filter(row => row.executorSuccess).length,
+    successes: rows.filter(row => row[successMetric]).length,
     completePrerequisites: rows.filter(row => row.completePrerequisites).length,
     meanSchemaBytes: rows.some(row => row.schemaBytes !== null) ? Math.round(rows.reduce((sum, row) => sum + (row.schemaBytes ?? 0), 0) / rows.filter(row => row.schemaBytes !== null).length) : 0,
     irrelevantTools: rows.reduce((sum, row) => sum + (row.irrelevantTools ?? 0), 0),

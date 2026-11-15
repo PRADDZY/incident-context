@@ -41,7 +41,20 @@ export interface BenchmarkDetail {
   freezeAudits: FreezeAudit[];
   feedback: { taskId: string; runId: string; correct: boolean; result: FeedbackResult }[];
   warmupPlanIds: string[];
+  trainingAttempts?: number;
+  trainingCheckpoints?: { checkpoint: number; attempts: number; feedback: number }[];
   fatalError?: string;
+}
+export interface BenchmarkStudySpec {
+  datasetHash: string;
+  trainingTasks: EvaluationTask[];
+  heldoutTasks: EvaluationTask[];
+  checkpoints: number[];
+  notes: string[];
+  successMetric?: 'executorSuccess' | 'observationSuccess';
+  assertLocked(): Promise<void>;
+  /** Supplements fail on transport errors, retaining only expected semantic plan failures. */
+  isSemanticPlanFailure?: (error: unknown) => boolean;
 }
 export const weightFingerprint = (weights: Weight[]): string => JSON.stringify([...weights].sort((a, b) => a.family.localeCompare(b.family) || a.skillId.localeCompare(b.skillId)));
 
@@ -50,9 +63,15 @@ export function verifyFrozen(phase: string, before: Bootstrap, after: Bootstrap,
   return { phase, beforeGraphVersion: before.graphVersion, afterGraphVersion: after.graphVersion, beforeWeights: structuredClone(before.weights), afterWeights: structuredClone(after.weights), receiptVersions };
 }
 
-export async function runBenchmark(api: BenchmarkApi, sessionId: string, onProgress: (detail: BenchmarkDetail) => Promise<void> = async () => {}): Promise<{ report: EvaluationReport; detail: BenchmarkDetail }> {
+export async function runBenchmark(api: BenchmarkApi, sessionId: string, onProgress: (detail: BenchmarkDetail) => Promise<void> = async () => {}, studySpec?: BenchmarkStudySpec): Promise<{ report: EvaluationReport; detail: BenchmarkDetail }> {
   await assertDatasetLocked();
-  const detail: BenchmarkDetail = { protocol: 'fixed-workflow-v1', status: 'running', datasetHash: DATASET_SHA256, sessionId, startedAt: new Date().toISOString(), completedAt: null, cases: [], freezeAudits: [], feedback: [], warmupPlanIds: [] };
+  if (studySpec) await studySpec.assertLocked();
+  const datasetHash = studySpec?.datasetHash ?? DATASET_SHA256;
+  const trainingTasks = studySpec?.trainingTasks ?? TRAINING_TASKS;
+  const heldoutTasks = studySpec?.heldoutTasks ?? HELDOUT_TASKS;
+  const checkpoints = studySpec?.checkpoints ?? [0, 10, 20, 40];
+  if (checkpoints[0] !== 0 || checkpoints.at(-1) !== trainingTasks.length || checkpoints.some((point, index) => !Number.isInteger(point) || point < 0 || (index > 0 && point <= checkpoints[index - 1]))) throw new Error('Study checkpoints must increase from zero through every training attempt.');
+  const detail: BenchmarkDetail = { protocol: 'fixed-workflow-v1', status: 'running', datasetHash, sessionId, startedAt: new Date().toISOString(), completedAt: null, cases: [], freezeAudits: [], feedback: [], warmupPlanIds: [], ...(studySpec ? { trainingAttempts: 0, trainingCheckpoints: [] } : {}) };
   await onProgress(detail);
   try {
     // remember() may write REMEMBERS_SERVICE and increment global version. Warm
@@ -68,6 +87,7 @@ export async function runBenchmark(api: BenchmarkApi, sessionId: string, onProgr
     const execute = async (task: EvaluationTask, mode: Mode, phase: string): Promise<CaseDetail> => {
       const start = performance.now();
       let plan: Plan | null = null, run: AgentRun | null = null, error: string | null = null;
+      let fatal: unknown;
       let calls: ToolCall[] = [], planLatencyMs = 0;
       try {
         plan = await api.plan({ task: task.task, sessionId, mode, budget: 4096 });
@@ -77,6 +97,7 @@ export async function runBenchmark(api: BenchmarkApi, sessionId: string, onProgr
       } catch (caught) {
         if (!plan) planLatencyMs = Math.round((performance.now() - start) * 100) / 100;
         error = caught instanceof Error ? caught.message : String(caught);
+        if (studySpec?.isSemanticPlanFailure && (plan !== null || !studySpec.isSemanticPlanFailure(caught))) fatal = caught ?? new Error(error);
       }
       const coverage = plan ? gradeCoverage(task, plan) : null;
       const observations = gradeObservations(task, run?.observations ?? []);
@@ -94,41 +115,53 @@ export async function runBenchmark(api: BenchmarkApi, sessionId: string, onProgr
       };
       detail.cases.push(row);
       if (coverage && plan!.schemaBytes !== coverage.schemaBytes) throw new Error(`Backend/model serialization byte mismatch in ${task.id}; expected ${coverage.schemaBytes}, reported ${plan!.schemaBytes}.`);
-      await onProgress(detail); return row;
+      await onProgress(detail);
+      if (fatal) throw fatal;
+      return row;
     };
     const measured = async (mode: Mode, phase: string) => {
+      if (studySpec) await studySpec.assertLocked();
       const before = await api.bootstrap(sessionId);
       const rows: CaseDetail[] = [];
-      for (const task of HELDOUT_TASKS) rows.push(await execute(task, mode, phase));
+      for (const task of heldoutTasks) rows.push(await execute(task, mode, phase));
       const after = await api.bootstrap(sessionId);
       detail.freezeAudits.push(verifyFrozen(phase, before, after, rows.flatMap(row => row.plan ? [row.plan.receipt.graphVersion] : [])));
+      if (studySpec) await studySpec.assertLocked();
       await onProgress(detail); return rows;
     };
     const curve: EvaluationReport['curve'] = [];
     let graphRows: CaseDetail[] = [];
-    for (const checkpoint of [0, 10, 20, 40]) {
-      const previous = detail.feedback.length;
+    let trainingAttempts = 0;
+    for (const checkpoint of checkpoints) {
+      const previous = trainingAttempts;
       for (let index = previous; index < checkpoint; index++) {
-        const task = TRAINING_TASKS[index];
+        const task = trainingTasks[index];
         const row = await execute(task, 'graph', 'training');
-        if (!row.run) throw new Error(`Training ${task.id} has no actual executor run; stop instead of inventing feedback.`);
-        const correct = row.run.success === true;
+        trainingAttempts++;
+        if (studySpec) detail.trainingAttempts = trainingAttempts;
+        if (!row.run) {
+          if (studySpec?.isSemanticPlanFailure) { await onProgress(detail); continue; }
+          throw new Error(`Training ${task.id} has no actual executor run; stop instead of inventing feedback.`);
+        }
+        if (studySpec?.isSemanticPlanFailure && !row.plan?.skill) { await onProgress(detail); continue; }
+        const correct = studySpec?.successMetric === 'observationSuccess' ? row.observationSuccess : row.run.success === true;
         const result = await api.feedback({ runId: row.run.id, sessionId, correct });
         detail.feedback.push({ taskId: task.id, runId: row.run.id, correct, result });
         await onProgress(detail);
       }
+      if (studySpec) detail.trainingCheckpoints!.push({ checkpoint, attempts: trainingAttempts, feedback: detail.feedback.length });
       graphRows = await measured('graph', `checkpoint-${checkpoint}`);
-      const aggregate = summarize('graph', graphRows);
+      const aggregate = summarize('graph', graphRows, studySpec?.successMetric);
       curve.push({ checkpoint, tasks: aggregate.tasks, successes: aggregate.successes, meanSchemaBytes: aggregate.meanSchemaBytes });
     }
     const rows: EvaluationReport['rows'] = [];
-    for (const mode of ['all', 'lexical', 'frozen'] as const) rows.push(summarize(mode, await measured(mode, `final-${mode}`)));
-    rows.push(summarize('graph', graphRows));
+    for (const mode of ['all', 'lexical', 'frozen'] as const) rows.push(summarize(mode, await measured(mode, `final-${mode}`), studySpec?.successMetric));
+    rows.push(summarize('graph', graphRows, studySpec?.successMetric));
     const after = await api.bootstrap(sessionId);
     const report: EvaluationReport = {
-      status: 'complete', generatedAt: new Date().toISOString(), datasetHash: DATASET_SHA256,
-      trainingTasks: TRAINING_TASKS.length, heldoutTasks: HELDOUT_TASKS.length, graphVersion: after.graphVersion, rows, curve,
-      notes: [
+      status: 'complete', generatedAt: new Date().toISOString(), datasetHash,
+      trainingTasks: trainingTasks.length, heldoutTasks: heldoutTasks.length, graphVersion: after.graphVersion, rows, curve,
+      notes: studySpec ? [...studySpec.notes, `${trainingAttempts} training attempts produced ${detail.feedback.length} actual feedback updates; ${trainingAttempts - detail.feedback.length} attempts had no trainable run/selected skill. Checkpoints count attempts, never fabricated feedback.`] : [
         'Deterministic FIXED workflow policy, not LLM task accuracy. Successes count actual /internal/execute run.success === true; no model was called and token/neurons usage is null.',
         'Schema coverage, actual executor completion, independently graded observations, and live model task success are separate outcomes. Independent observation failures and raw runs are retained in resultsdetail.json.',
         'Independent gold is locked in dataset.json before feedback. Expected tool sets are investigation requirements, not graph-edge or selected-skill outputs. A complete bundle alone never counts as executor success.',
