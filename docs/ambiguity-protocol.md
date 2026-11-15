@@ -1,0 +1,13 @@
+# Goal-oriented request supplement: preregistration
+
+This bounded supplement measures whether feedback transfers to normal, goal-oriented incident requests whose diagnostic work is implicit. It must be reported alongside the initial study, never substituted for it. Improvement across checkpoints is a hypothesis; a rising curve is not guaranteed.
+
+The independent request author worked only from the supplied task brief and general data-science guidance. The author did not inspect production code, incident tools or skills, existing datasets, execution results, selector behavior, or other agents' notes, and made no backend or model requests. No implementation-derived gold answers are included.
+
+The frozen corpus contains 40 English requests: 20 training and 20 held out. Each split has 10 deployment and 10 provider requests, interleaved in the recorded order. Each service contributes five requests per family. Training uses only NorthstarCheckout (`northstar-checkout`; checkout/payments) and CedarDispatch (`cedar-dispatch`; dispatch/routing). Held-out requests use only JuniperSearch (`juniper-search`; search/discovery) and HarborLedger (`harbor-ledger`; ledger/billing). Service names and aliases do not cross splits. Checkpoints are 0, 5, 10, and 20 training tasks.
+
+Deployment requests require establishing a regression, explaining the recent change, and considering a reversal. The brief stipulates one fixed simulated deployment incident per service: errors increased after retry budget changed from 3 to 0; current deployment is `dep-{serviceId}-20261115` and previous deployment is `dep-{serviceId}-20261114`. These are four underlying deployment fixtures, not 40 independent incidents. Repeated requests measure phrasing and service transfer within this narrow setting; they do not establish broad incident-response generalization.
+
+Provider requests ask about real Cloudflare Workers public status. No outage state, incident presence, or causal link to the simulated app incident is prespecified. Provider observations can change with execution time. The independent observation grader will be reused; neither request wording nor any presumed selector strategy defines a gold tool sequence.
+
+All 40 cases will be retained, including failures and unfavorable results. Report family-specific and split-specific outcomes as well as any aggregate result; do not treat repeated fixture observations as independent incident evidence. The dataset's raw-file SHA-256 is recorded next to it. No request wording, task membership, order, or intended semantics may be revised after execution starts. This document records a protocol only; no experiment execution or result is claimed.

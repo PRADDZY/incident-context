@@ -1,0 +1,290 @@
+{
+  "name": "Goal-oriented incident requests",
+  "version": 1,
+  "purpose": "Measure feedback transfer for goal-oriented requests; report alongside, never replacing the initial study.",
+  "trainingTasks": 20,
+  "heldoutTasks": 20,
+  "checkpoint": [0, 5, 10, 20],
+  "tasks": [
+    {
+      "id": "amb-train-d01",
+      "split": "train",
+      "family": "deployment",
+      "serviceId": "northstar-checkout",
+      "task": "Help us recover checkout from its error spike: work out whether today's rollout changed its behavior and whether returning to the earlier release is a sensible fix."
+    },
+    {
+      "id": "amb-train-p01",
+      "split": "train",
+      "family": "provider",
+      "serviceId": "cedar-dispatch",
+      "task": "For the routing incident, check whether Cloudflare Workers has reported any upstream trouble that belongs in our assessment."
+    },
+    {
+      "id": "amb-train-d02",
+      "split": "train",
+      "family": "deployment",
+      "serviceId": "cedar-dispatch",
+      "task": "Dispatch has been failing more since the rollout. Find out whether a release change explains that pattern and assess getting us back to the prior behavior."
+    },
+    {
+      "id": "amb-train-p02",
+      "split": "train",
+      "family": "provider",
+      "serviceId": "northstar-checkout",
+      "task": "Is there anything on Cloudflare Workers' public status that we should consider while handling NorthstarCheckout's incident?"
+    },
+    {
+      "id": "amb-train-d03",
+      "split": "train",
+      "family": "deployment",
+      "serviceId": "northstar-checkout",
+      "task": "We need a defensible recovery choice for payments. Investigate the apparent deterioration around the latest deployment and what reverting it would actually change."
+    },
+    {
+      "id": "amb-train-p03",
+      "split": "train",
+      "family": "provider",
+      "serviceId": "cedar-dispatch",
+      "task": "Before we attribute dispatch's symptoms to our code, find out whether Cloudflare Workers is reporting a relevant service incident."
+    },
+    {
+      "id": "amb-train-d04",
+      "split": "train",
+      "family": "deployment",
+      "serviceId": "cedar-dispatch",
+      "task": "Please diagnose why routing got noisier around the last release and tell us whether restoring the earlier version is a plausible way out."
+    },
+    {
+      "id": "amb-train-p04",
+      "split": "train",
+      "family": "provider",
+      "serviceId": "northstar-checkout",
+      "task": "Could upstream Cloudflare Workers status shed light on the checkout incident? Look for provider-reported trouble we should take into account."
+    },
+    {
+      "id": "amb-train-d05",
+      "split": "train",
+      "family": "deployment",
+      "serviceId": "northstar-checkout",
+      "task": "Can you explain NorthstarCheckout's new failures in the context of its latest release and recommend whether to reverse the change?"
+    },
+    {
+      "id": "amb-train-p05",
+      "split": "train",
+      "family": "provider",
+      "serviceId": "cedar-dispatch",
+      "task": "We're triaging CedarDispatch. Are there reported Cloudflare Workers problems on the provider side that should influence our investigation?"
+    },
+    {
+      "id": "amb-train-d06",
+      "split": "train",
+      "family": "deployment",
+      "serviceId": "cedar-dispatch",
+      "task": "CedarDispatch needs a recovery decision. Explain the apparent error regression around its latest rollout well enough to judge a return to the previous version."
+    },
+    {
+      "id": "amb-train-p06",
+      "split": "train",
+      "family": "provider",
+      "serviceId": "northstar-checkout",
+      "task": "What has Cloudflare Workers publicly reported that might be relevant to the payments incident, if anything?"
+    },
+    {
+      "id": "amb-train-d07",
+      "split": "train",
+      "family": "deployment",
+      "serviceId": "northstar-checkout",
+      "task": "Checkout is throwing more errors after the update. Help us understand whether the changed release behavior accounts for it and whether reverting is justified."
+    },
+    {
+      "id": "amb-train-p07",
+      "split": "train",
+      "family": "provider",
+      "serviceId": "cedar-dispatch",
+      "task": "For routing, I need to know whether the upstream Cloudflare Workers service has acknowledged an incident we should account for."
+    },
+    {
+      "id": "amb-train-d08",
+      "split": "train",
+      "family": "deployment",
+      "serviceId": "cedar-dispatch",
+      "task": "Explain dispatch's apparent post-release deterioration in enough detail to decide whether undoing the recent change would help us stabilize it."
+    },
+    {
+      "id": "amb-train-p08",
+      "split": "train",
+      "family": "provider",
+      "serviceId": "northstar-checkout",
+      "task": "Payments needs an upstream status assessment. Is Cloudflare Workers reporting a disruption or incident we should consider?"
+    },
+    {
+      "id": "amb-train-d09",
+      "split": "train",
+      "family": "deployment",
+      "serviceId": "northstar-checkout",
+      "task": "Please make sense of the payments failures following the new deployment so we can decide whether restoring the last version would address the cause."
+    },
+    {
+      "id": "amb-train-p09",
+      "split": "train",
+      "family": "provider",
+      "serviceId": "cedar-dispatch",
+      "task": "Has Cloudflare Workers reported provider trouble that is worth considering in dispatch's incident response, regardless of whether it explains our symptoms?"
+    },
+    {
+      "id": "amb-train-d10",
+      "split": "train",
+      "family": "deployment",
+      "serviceId": "cedar-dispatch",
+      "task": "Is the latest routing release responsible for the higher error rate, and does the change it introduced give us a credible rollback option?"
+    },
+    {
+      "id": "amb-train-p10",
+      "split": "train",
+      "family": "provider",
+      "serviceId": "northstar-checkout",
+      "task": "Give us the upstream picture for checkout: has Cloudflare Workers posted any service disruption or incident we need to factor in?"
+    },
+    {
+      "id": "amb-heldout-d01",
+      "split": "heldout",
+      "family": "deployment",
+      "serviceId": "juniper-search",
+      "task": "Help us choose a recovery path for search's rising failures after the release; explain whether a release change is responsible and what going back would accomplish."
+    },
+    {
+      "id": "amb-heldout-p01",
+      "split": "heldout",
+      "family": "provider",
+      "serviceId": "harbor-ledger",
+      "task": "While we handle billing's incident, is Cloudflare Workers reporting upstream problems we should consider?"
+    },
+    {
+      "id": "amb-heldout-d02",
+      "split": "heldout",
+      "family": "deployment",
+      "serviceId": "harbor-ledger",
+      "task": "Ledger started erroring more around the rollout. Investigate whether the release altered its behavior in a way that makes reverting a useful recovery move."
+    },
+    {
+      "id": "amb-heldout-p02",
+      "split": "heldout",
+      "family": "provider",
+      "serviceId": "juniper-search",
+      "task": "Check the provider side for discovery: has Cloudflare Workers publicly acknowledged trouble that matters to our triage?"
+    },
+    {
+      "id": "amb-heldout-d03",
+      "split": "heldout",
+      "family": "deployment",
+      "serviceId": "juniper-search",
+      "task": "We need discovery reliable again. Explain the apparent deterioration tied to the latest deployment well enough to judge whether undoing its change would fix it."
+    },
+    {
+      "id": "amb-heldout-p03",
+      "split": "heldout",
+      "family": "provider",
+      "serviceId": "harbor-ledger",
+      "task": "Does Cloudflare Workers' reported service status give us any upstream incident to keep in mind for HarborLedger?"
+    },
+    {
+      "id": "amb-heldout-d04",
+      "split": "heldout",
+      "family": "deployment",
+      "serviceId": "harbor-ledger",
+      "task": "Can you work out why billing's errors climbed after the update and whether restoring the earlier release would address the behavior that changed?"
+    },
+    {
+      "id": "amb-heldout-p04",
+      "split": "heldout",
+      "family": "provider",
+      "serviceId": "juniper-search",
+      "task": "We need the provider's account of service health for the search incident. Is Cloudflare Workers reporting any trouble to take into account?"
+    },
+    {
+      "id": "amb-heldout-d05",
+      "split": "heldout",
+      "family": "deployment",
+      "serviceId": "juniper-search",
+      "task": "JuniperSearch looks worse since the deployment. Help us establish what changed and decide whether reversing the release is a sound response to the errors."
+    },
+    {
+      "id": "amb-heldout-p05",
+      "split": "heldout",
+      "family": "provider",
+      "serviceId": "harbor-ledger",
+      "task": "Could you find out whether Cloudflare Workers has reported a service issue we should consider as part of the ledger investigation?"
+    },
+    {
+      "id": "amb-heldout-d06",
+      "split": "heldout",
+      "family": "deployment",
+      "serviceId": "harbor-ledger",
+      "task": "We need a grounded rollback decision for HarborLedger's new failures: explain whether the latest release caused a regression and which changed behavior we'd undo."
+    },
+    {
+      "id": "amb-heldout-p06",
+      "split": "heldout",
+      "family": "provider",
+      "serviceId": "juniper-search",
+      "task": "We are investigating JuniperSearch. What's the reported Cloudflare Workers situation upstream, and is there a provider incident to be aware of?"
+    },
+    {
+      "id": "amb-heldout-d07",
+      "split": "heldout",
+      "family": "deployment",
+      "serviceId": "juniper-search",
+      "task": "Search is failing more following the rollout. Explain the release's role, if any, so we can judge whether moving back would restore its earlier behavior."
+    },
+    {
+      "id": "amb-heldout-p07",
+      "split": "heldout",
+      "family": "provider",
+      "serviceId": "harbor-ledger",
+      "task": "Before we settle on an explanation for billing, check whether upstream Cloudflare Workers has acknowledged any service trouble."
+    },
+    {
+      "id": "amb-heldout-d08",
+      "split": "heldout",
+      "family": "deployment",
+      "serviceId": "harbor-ledger",
+      "task": "Help us get ledger back to its earlier reliability by investigating the error increase around the last release and whether undoing a recent change would help."
+    },
+    {
+      "id": "amb-heldout-p08",
+      "split": "heldout",
+      "family": "provider",
+      "serviceId": "juniper-search",
+      "task": "Is there a current Cloudflare Workers status report or incident that should be included in discovery's upstream assessment?"
+    },
+    {
+      "id": "amb-heldout-d09",
+      "split": "heldout",
+      "family": "deployment",
+      "serviceId": "juniper-search",
+      "task": "Please diagnose discovery's apparent post-deployment regression and assess whether the change behind it can be reversed to recover the earlier error rate."
+    },
+    {
+      "id": "amb-heldout-p09",
+      "split": "heldout",
+      "family": "provider",
+      "serviceId": "harbor-ledger",
+      "task": "What's Cloudflare Workers saying publicly about provider problems that might be relevant while we investigate HarborLedger?"
+    },
+    {
+      "id": "amb-heldout-d10",
+      "split": "heldout",
+      "family": "deployment",
+      "serviceId": "harbor-ledger",
+      "task": "We need to know whether billing's latest release explains the jump in failures, and whether reversing what changed gives us a workable recovery option."
+    },
+    {
+      "id": "amb-heldout-p10",
+      "split": "heldout",
+      "family": "provider",
+      "serviceId": "juniper-search",
+      "task": "Has Cloudflare Workers announced upstream trouble worth considering in the search incident?"
+    }
+  ]
+}
