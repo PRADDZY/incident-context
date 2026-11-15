@@ -109,6 +109,7 @@ export async function handleApi(request: Request, services: Services): Promise<R
       }
     }
     if (url.pathname !== "/api/run") return json(await services.backend(url.pathname, { method: "POST", body: JSON.stringify(body) }));
+    const started = performance.now();
     const plan = await services.backend("/api/plan", { method: "POST", body: JSON.stringify(body) }) as Plan;
     if (plan.abstained) return json({ error: plan.reason ?? "No complete context bundle fits.", plan }, 422);
     const input = modelInput(plan);
@@ -121,7 +122,7 @@ export async function handleApi(request: Request, services: Services): Promise<R
       method: "POST",
       body: JSON.stringify({ planId: plan.id, sessionId: body.sessionId, calls, usage: readUsage(output), requestedModel: MODEL, returnedModel: typeof result.model === "string" ? result.model : "not reported" }),
     });
-    return json(run);
+    return json({ ...record(run), totalDurationMs: Math.round(performance.now() - started) });
   } catch (error) {
     if (error instanceof ApiError) return json({ error: error.message }, error.status);
     return json({ error: "Service unavailable. The graph origin or model could not complete this request." }, 503);

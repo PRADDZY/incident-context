@@ -103,3 +103,13 @@ test("backend failure becomes an explicit unavailable response", async () => {
   assert.equal(response.status, 503);
   assert.match(await response.text(), /unavailable/);
 });
+
+test("public run timing includes inference instead of labeling tool time as total", async () => {
+  const response = await handleApi(new Request("https://example.test/api/run", { method: "POST", body: JSON.stringify({ task: plan.task, sessionId: "session-1" }) }), {
+    backend: async (path) => path === "/api/plan" ? plan : path === "/internal/reserve-model" ? {} : { id: "run-1", durationMs: 0 },
+    infer: async () => { await new Promise(resolve => setTimeout(resolve, 25)); return { tool_calls: [] }; },
+  });
+  const run = await response.json() as { durationMs: number; totalDurationMs?: number };
+  assert.equal(run.durationMs, 0);
+  assert.ok((run.totalDurationMs ?? 0) >= 20);
+});

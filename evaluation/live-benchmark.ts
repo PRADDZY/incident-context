@@ -1,5 +1,5 @@
 import { performance } from 'node:perf_hooks';
-import type { AgentRun, Bootstrap, EvaluationReport, Mode, PlanRequest } from '../src/shared/contracts.ts';
+import type { AgentRun, Bootstrap, EvaluationReport, Mode, PlanRequest, Weight } from '../src/shared/contracts.ts';
 import { type BenchmarkDetail, type FreezeAudit, verifyFrozen, weightFingerprint } from './benchmark.ts';
 import { HttpError } from './client.ts';
 import { DATASET, DATASET_SHA256, HELDOUT_TASKS, TRAINING_TASKS, assertDatasetLocked } from './dataset.ts';
@@ -43,10 +43,20 @@ export async function runLiveComparison(
 ): Promise<LiveResult> {
   await assertDatasetLocked();
   if (training.status !== 'complete' || training.datasetHash !== DATASET_SHA256 || training.feedback.length !== 40 || TRAINING_TASKS.some(task => !training.feedback.some(feedback => feedback.taskId === task.id))) throw new Error('Completed locked training artifact with exactly 40 training feedback records required.');
+  const expectedPhases = ['checkpoint-0', 'checkpoint-10', 'checkpoint-20', 'checkpoint-40', 'final-all', 'final-lexical', 'final-frozen'];
+  const weightKeys = new Set(['deployment', 'provider'].flatMap(family => ['telemetry', 'release-investigation', 'provider-investigation'].map(skillId => `${family}:${skillId}`)));
+  const validWeights = (weights: unknown): weights is Weight[] => Array.isArray(weights) && weights.length === weightKeys.size
+    && weights.every(weight => weight && weightKeys.has(`${weight.family}:${weight.skillId}`) && Number.isInteger(weight.successes) && weight.successes >= 1 && Number.isInteger(weight.failures) && weight.failures >= 1 && Number.isFinite(weight.usefulness) && Math.abs(weight.usefulness - weight.successes / (weight.successes + weight.failures)) < 1e-12)
+    && new Set(weights.map(weight => `${weight.family}:${weight.skillId}`)).size === weightKeys.size;
+  const audits = training.freezeAudits;
+  if (!Array.isArray(audits) || audits.length !== expectedPhases.length || audits.some((audit, index) => !audit || audit.phase !== expectedPhases[index]
+    || !Number.isInteger(audit.beforeGraphVersion) || audit.beforeGraphVersion < 1 || audit.afterGraphVersion !== audit.beforeGraphVersion
+    || !validWeights(audit.beforeWeights) || !validWeights(audit.afterWeights) || weightFingerprint(audit.beforeWeights) !== weightFingerprint(audit.afterWeights)
+    || !Array.isArray(audit.receiptVersions) || audit.receiptVersions.some(version => version !== audit.beforeGraphVersion))) throw new Error('Completed training artifact must contain all seven valid freeze audits and complete final weights.');
+  const trainedWeights = audits[audits.length - 1].afterWeights;
   const before = await backend.bootstrap(training.sessionId);
   if (before.budget.limit - before.budget.calls < 30) throw new Error('30 model-call slots must be available before the paired live comparison.');
-  const trainedWeights = training.freezeAudits.at(-1)?.afterWeights;
-  if (trainedWeights && weightFingerprint(trainedWeights) !== weightFingerprint(before.weights)) throw new Error('Training weights changed since the completed training artifact.');
+  if (!validWeights(before.weights) || weightFingerprint(trainedWeights) !== weightFingerprint(before.weights)) throw new Error('Training weights changed since the completed training artifact.');
   const modes = ['all', 'frozen', 'graph'] as const;
   const result: LiveResult = {
     status: 'running', protocol: 'paired-live-v1', datasetHash: DATASET_SHA256, sessionId: training.sessionId,

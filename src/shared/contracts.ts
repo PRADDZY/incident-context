@@ -123,6 +123,7 @@ export interface AgentRun {
   returnedModel: string;
   createdAt: string;
   durationMs: number;
+  totalDurationMs?: number;
 }
 
 export interface Weight {
