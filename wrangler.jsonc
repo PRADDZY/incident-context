@@ -12,5 +12,5 @@
   },
   "ai": { "binding": "AI" },
   "observability": { "enabled": true },
-  "vars": { "BACKEND_ORIGIN": "https://not-configured.invalid" }
+  "vars": { "BACKEND_ORIGIN": "https://fees-camcorder-wilderness-modern.trycloudflare.com" }
 }

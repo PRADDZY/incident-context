@@ -144,6 +144,7 @@ export interface FeedbackResult {
   after: Weight;
   graphVersion: number;
   recordedAt: string;
+  receipt?: GraphReceipt;
 }
 
 export interface Scenario {
