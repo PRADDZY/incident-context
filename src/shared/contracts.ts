@@ -19,6 +19,10 @@ export interface Service {
   aliases: string[];
   resourceId: string;
   environment: string;
+  providerComponentId?: string;
+  providerComponentName?: string;
+  providerComponentSource?: string;
+  latestDeploymentId?: string;
 }
 
 export interface Skill {
