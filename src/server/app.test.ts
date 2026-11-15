@@ -35,5 +35,9 @@ test('HTTP authenticates every route, rejects invalid calls and enforces plan se
     assert.equal(run.observations.length, 2);
     assert.equal((await post('/api/feedback', { runId: run.id, sessionId: plan.sessionId, correct: true })).status, 200);
     assert.equal((await post('/api/feedback', { runId: run.id, sessionId: plan.sessionId, correct: true })).status, 409);
+    assert.equal((await fetch(origin + '/internal/protect-session', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ sessionId: plan.sessionId }) })).status, 401);
+    assert.equal((await post('/internal/protect-session', { sessionId: '../invalid' })).status, 400);
+    assert.equal((await post('/internal/protect-session', { sessionId: plan.sessionId })).status, 200);
+    assert.equal((await post('/api/feedback', { runId: run.id, sessionId: plan.sessionId, correct: false })).status, 403);
   } finally { server.closeAllConnections(); server.close(); await rm(dir, { recursive: true, force: true }); }
 });

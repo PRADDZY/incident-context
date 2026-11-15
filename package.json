@@ -7,10 +7,11 @@
     "dev": "vite --host 127.0.0.1",
     "build": "vite build",
     "server": "tsx src/server/index.ts",
-    "test": "tsx --test src/server/*.test.ts src/worker/*.test.ts",
+    "test": "tsx --test src/server/*.test.ts src/worker/*.test.ts evaluation/*.test.ts",
     "typecheck": "tsc --noEmit",
     "typecheck:worker": "tsc -p tsconfig.worker.json --noEmit",
     "evaluate": "tsx evaluation/run.ts",
+    "evaluate:live": "tsx evaluation/live.ts",
     "deploy": "npm run build && wrangler deploy",
     "cf:types": "wrangler types worker-env.d.ts"
   },

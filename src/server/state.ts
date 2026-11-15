@@ -12,6 +12,7 @@ interface State {
   plans: Record<string, Plan>;
   runs: Record<string, AgentRun>;
   feedback: Record<string, FeedbackResult>;
+  protectedSessions: string[];
 }
 type SkillIdentity = { id: string; family: Family };
 export const utcDay = () => new Date().toISOString().slice(0, 10);
@@ -26,11 +27,13 @@ export class StateStore {
     try { data = JSON.parse(await readFile(join(dir, 'state.json'), 'utf8')) as State; }
     catch (error) {
       if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
-      data = { version: 1, graphVersion: 1, days: {}, weights: {}, plans: {}, runs: {}, feedback: {} };
+      data = { version: 1, graphVersion: 1, days: {}, weights: {}, plans: {}, runs: {}, feedback: {}, protectedSessions: [] };
     }
+    data.protectedSessions ??= [];
     if (data.version !== 1 || !data.days || !data.weights || !data.plans || !data.runs || !data.feedback) {
       throw new Error('Unsupported or damaged persistent state');
     }
+    if (!Array.isArray(data.protectedSessions) || data.protectedSessions.some(id => typeof id !== 'string')) throw new Error('Invalid protected session state');
     return new StateStore(dir, skills, data);
   }
 
@@ -71,6 +74,12 @@ export class StateStore {
     return structuredClone(plan);
   }
   saveRun(run: AgentRun) { return this.mutate(next => { next.runs[run.id] = run; }); }
+  protectSession(sessionId: string) {
+    return this.mutate(next => {
+      if (!next.protectedSessions.includes(sessionId)) next.protectedSessions.push(sessionId);
+      return { sessionId, protected: true };
+    });
+  }
   getRun(id: string, sessionId: string) {
     const run = this.data.runs[id];
     if (!run) throw new ApiError(404, 'Run not found');
@@ -79,6 +88,7 @@ export class StateStore {
   }
   feedback(input: Feedback, graphWriter?: (input: Feedback, run: AgentRun) => Promise<FeedbackResult>): Promise<FeedbackResult> {
     return this.mutate(async next => {
+      if (next.protectedSessions.includes(input.sessionId)) throw new ApiError(403, 'Feedback is locked for this protected session');
       const run = next.runs[input.runId];
       if (!run) throw new ApiError(404, 'Run not found');
       if (run.plan.sessionId !== input.sessionId) throw new ApiError(403, 'Run owner does not match session');

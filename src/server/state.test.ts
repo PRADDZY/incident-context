@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, rm } from 'node:fs/promises';
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { StateStore } from './state.ts';
@@ -50,5 +50,53 @@ test('a failed graph feedback write does not acknowledge feedback or consume the
     const result = await state.feedback(input, async () => ({ before: state.weights(plan.sessionId)[0], after: { ...state.weights(plan.sessionId)[0], successes: 2, usefulness: 2 / 3 }, graphVersion: 7, recordedAt: '2026-11-15T12:00:00Z' }));
     assert.equal(result.graphVersion, 7);
     assert.equal(state.weights(plan.sessionId)[0].successes, 2);
+  } finally { await rm(dir, { recursive: true, force: true }); }
+});
+
+test('session protection durably blocks feedback before any graph write and leaves other sessions usable', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'incident-protected-'));
+  try {
+    const state = await StateStore.open(dir, skills);
+    await state.saveRun(run);
+    await state.feedback({ runId: run.id, sessionId: plan.sessionId, correct: true });
+    await state.saveRun({ ...run, id: 'protected-run' });
+    const before = state.weights(plan.sessionId), version = state.graphVersion;
+    await state.protectSession(plan.sessionId);
+    let graphWrites = 0;
+    const feedback = { runId: 'protected-run', sessionId: plan.sessionId, correct: false };
+    const writer = async () => { graphWrites++; throw new Error('Graph writer must not be invoked'); };
+    const forbidden = (error: unknown) => error instanceof Error && 'status' in error && error.status === 403;
+    await assert.rejects(state.feedback(feedback, writer), forbidden);
+    assert.equal(graphWrites, 0);
+    assert.deepEqual(state.weights(plan.sessionId), before);
+    assert.equal(state.graphVersion, version);
+    const reopened = await StateStore.open(dir, skills);
+    await assert.rejects(reopened.feedback(feedback, writer), forbidden);
+    assert.deepEqual(reopened.weights(plan.sessionId), before);
+    await reopened.saveRun({ ...run, id: 'unprotected-run', plan: { ...plan, sessionId: 'session-b' } });
+    const other = await reopened.feedback({ runId: 'unprotected-run', sessionId: 'session-b', correct: false });
+    assert.equal(other.after.failures, 2);
+    assert.deepEqual(reopened.weights(plan.sessionId), before);
+  } finally { await rm(dir, { recursive: true, force: true }); }
+});
+
+test('existing version-one state without protected sessions preserves its data when protection is added', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'incident-state-migration-'));
+  try {
+    const original = await StateStore.open(dir, skills);
+    await original.reserveModel('2026-11-15');
+    await original.saveRun(run);
+    const file = join(dir, 'state.json');
+    const legacy = JSON.parse(await readFile(file, 'utf8'));
+    delete legacy.protectedSessions;
+    await writeFile(file, JSON.stringify(legacy));
+    const reopened = await StateStore.open(dir, skills);
+    assert.equal(reopened.budget('2026-11-15').calls, 1);
+    assert.equal((await reopened.feedback({ runId: run.id, sessionId: plan.sessionId, correct: true })).after.successes, 2);
+    await reopened.protectSession(plan.sessionId);
+    const protectedStore = await StateStore.open(dir, skills);
+    assert.equal(protectedStore.budget('2026-11-15').calls, 1);
+    assert.equal(protectedStore.weights(plan.sessionId)[0].successes, 2);
+    await assert.rejects(protectedStore.feedback({ runId: run.id, sessionId: plan.sessionId, correct: false }), /protected session/);
   } finally { await rm(dir, { recursive: true, force: true }); }
 });

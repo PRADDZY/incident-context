@@ -63,6 +63,10 @@ export function createApplication(options: ApplicationOptions) {
         z.object({ sessionId }).strict().parse(await body(req));
         send(res, 200, await state.reserveModel()); return;
       }
+      if (route === 'POST /internal/protect-session') {
+        const input = z.object({ sessionId }).strict().parse(await body(req));
+        send(res, 200, await state.protectSession(input.sessionId)); return;
+      }
       if (route === 'POST /internal/execute') {
         const start = performance.now(), input = executeInput.parse(await body(req));
         const plan = state.getPlan(input.planId, input.sessionId);
