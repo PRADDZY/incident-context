@@ -1,4 +1,5 @@
 import { performance } from 'node:perf_hooks';
+import { randomUUID } from 'node:crypto';
 import type { Json, QueryReceipt } from '../shared/contracts.ts';
 import { ApiError } from './errors.ts';
 
@@ -14,7 +15,8 @@ export class HydraClient {
     try {
       response = await fetch(`${this.options.origin}/v1/graphs/default/query`, {
         method: 'POST', headers: { Authorization: `Bearer ${this.options.token}`, 'Content-Type': 'application/json', 'X-Graph-Namespace': this.options.namespace ?? 'default' },
-        body: JSON.stringify({ cell_id: this.options.cellId ?? 'cell-0', query: cypher, parameters }),
+        // The engine's default HTTP counter restarts, but mutation receipts persist.
+        body: JSON.stringify({ cell_id: this.options.cellId ?? 'cell-0', query_id: randomUUID(), query: cypher, parameters }),
         signal: AbortSignal.timeout(this.options.timeoutMs ?? 5000),
       });
     } catch { throw new ApiError(503, 'HydraDB is unreachable or query timed out'); }

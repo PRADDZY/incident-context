@@ -1,0 +1,220 @@
+{
+  "status": "complete",
+  "generatedAt": "2026-11-15T18:23:31.685495+00:00",
+  "scope": "Loopback backend HTTP planning, real HydraDB, five warmed sessions, 20 requests, 12-tool catalog; no model calls or sustained/public-Internet load claim.",
+  "concurrency": 5,
+  "requests": 20,
+  "errors": 0,
+  "wallMs": 2543.64,
+  "p50Ms": 579.36,
+  "p95Ms": 687.83,
+  "weightsUnchangedDuringLoad": true,
+  "graphVersionUnchangedDuringLoad": true,
+  "modelBudget": {
+    "day": "2026-11-15",
+    "calls": 32,
+    "limit": 60
+  },
+  "checks": {
+    "unauthenticatedBackend": 401,
+    "invalidPlan": 400,
+    "unknownRoute": 404,
+    "duplicateBeforeRestart": 409,
+    "duplicateAfterRestart": 409
+  },
+  "recovery": {
+    "tested": true,
+    "engineDownHealthStatus": 503,
+    "engineDownPlanStatus": 503,
+    "engineReadyAfterStartMs": 507.27,
+    "apiReadyAfterRestartMs": 2508.98,
+    "weightsPreserved": true,
+    "budgetPreserved": true,
+    "graphVersionPreserved": true,
+    "protectedBenchmarks": 2,
+    "protectedFeedbackStatus": 403,
+    "duplicateFeedbackStatus": 409
+  },
+  "cases": [
+    {
+      "index": 0,
+      "session": 0,
+      "status": 200,
+      "complete": true,
+      "roundTripMs": 195.55,
+      "schemaBytes": 2279,
+      "graphVersion": 121
+    },
+    {
+      "index": 1,
+      "session": 1,
+      "status": 200,
+      "complete": true,
+      "roundTripMs": 533.27,
+      "schemaBytes": 2279,
+      "graphVersion": 121
+    },
+    {
+      "index": 2,
+      "session": 2,
+      "status": 200,
+      "complete": true,
+      "roundTripMs": 309.29,
+      "schemaBytes": 2279,
+      "graphVersion": 121
+    },
+    {
+      "index": 3,
+      "session": 3,
+      "status": 200,
+      "complete": true,
+      "roundTripMs": 412.61,
+      "schemaBytes": 2279,
+      "graphVersion": 121
+    },
+    {
+      "index": 4,
+      "session": 4,
+      "status": 200,
+      "complete": true,
+      "roundTripMs": 658.11,
+      "schemaBytes": 2279,
+      "graphVersion": 121
+    },
+    {
+      "index": 5,
+      "session": 0,
+      "status": 200,
+      "complete": true,
+      "roundTripMs": 567.46,
+      "schemaBytes": 2279,
+      "graphVersion": 121
+    },
+    {
+      "index": 6,
+      "session": 1,
+      "status": 200,
+      "complete": true,
+      "roundTripMs": 564.62,
+      "schemaBytes": 2279,
+      "graphVersion": 121
+    },
+    {
+      "index": 7,
+      "session": 2,
+      "status": 200,
+      "complete": true,
+      "roundTripMs": 575.97,
+      "schemaBytes": 2279,
+      "graphVersion": 121
+    },
+    {
+      "index": 8,
+      "session": 3,
+      "status": 200,
+      "complete": true,
+      "roundTripMs": 573.4,
+      "schemaBytes": 2279,
+      "graphVersion": 121
+    },
+    {
+      "index": 9,
+      "session": 4,
+      "status": 200,
+      "complete": true,
+      "roundTripMs": 572.0,
+      "schemaBytes": 2279,
+      "graphVersion": 121
+    },
+    {
+      "index": 10,
+      "session": 0,
+      "status": 200,
+      "complete": true,
+      "roundTripMs": 579.36,
+      "schemaBytes": 2279,
+      "graphVersion": 121
+    },
+    {
+      "index": 11,
+      "session": 1,
+      "status": 200,
+      "complete": true,
+      "roundTripMs": 614.83,
+      "schemaBytes": 2279,
+      "graphVersion": 121
+    },
+    {
+      "index": 12,
+      "session": 2,
+      "status": 200,
+      "complete": true,
+      "roundTripMs": 612.48,
+      "schemaBytes": 2279,
+      "graphVersion": 121
+    },
+    {
+      "index": 13,
+      "session": 3,
+      "status": 200,
+      "complete": true,
+      "roundTripMs": 656.19,
+      "schemaBytes": 2279,
+      "graphVersion": 121
+    },
+    {
+      "index": 14,
+      "session": 4,
+      "status": 200,
+      "complete": true,
+      "roundTripMs": 655.32,
+      "schemaBytes": 2279,
+      "graphVersion": 121
+    },
+    {
+      "index": 15,
+      "session": 0,
+      "status": 200,
+      "complete": true,
+      "roundTripMs": 694.12,
+      "schemaBytes": 2279,
+      "graphVersion": 121
+    },
+    {
+      "index": 16,
+      "session": 1,
+      "status": 200,
+      "complete": true,
+      "roundTripMs": 680.7,
+      "schemaBytes": 2279,
+      "graphVersion": 121
+    },
+    {
+      "index": 17,
+      "session": 2,
+      "status": 200,
+      "complete": true,
+      "roundTripMs": 687.83,
+      "schemaBytes": 2279,
+      "graphVersion": 121
+    },
+    {
+      "index": 18,
+      "session": 3,
+      "status": 200,
+      "complete": true,
+      "roundTripMs": 658.96,
+      "schemaBytes": 2279,
+      "graphVersion": 121
+    },
+    {
+      "index": 19,
+      "session": 4,
+      "status": 200,
+      "complete": true,
+      "roundTripMs": 652.43,
+      "schemaBytes": 2279,
+      "graphVersion": 121
+    }
+  ]
+}
