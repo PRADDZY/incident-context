@@ -22,7 +22,7 @@ Start discovery with two or three developer friends using the [tester guide](tes
 
 ## Account verification before posting
 
-The event brief requires posts on Twitter/X, LinkedIn, and other socials and a tag for the HydraDB account. It does **not** specify an exact account handle. `@HydraDB` below is a draft mention requiring the user's verification against the organizer's official account before publishing. On LinkedIn, select the official HydraDB page in the composer so the tag resolves. The user owns posting; nothing in this document has been published.
+The event brief requires HydraDB tags. The community quotations on [HydraDB's official website](https://hydradb.com/) refer to `@hydra_db`, so the X drafts use that handle. X blocked direct profile inspection during preparation; check that the mention resolves to the organizer when composing. The [HydraDB LinkedIn company page](https://www.linkedin.com/company/hydradb) identifies the company and links its domain; select that page in the composer. The user owns posting; nothing in this document has been published.
 
 ## X thread draft
 
@@ -31,14 +31,14 @@ Each numbered block is one post, under 280 characters even counting the literal 
 1.
 
 ```text
-Built Incident Context for platform/on-call teams: an agent context layer on real HydraDB. Resolve service aliases, traverse tool prerequisites, inspect every query receipt. @HydraDB #HydraDB
+Built Incident Context for platform/on-call teams: an agent context layer on real HydraDB. Resolve service aliases, traverse tool prerequisites, inspect every query receipt. @hydra_db #HydraDB
 Try: https://incident-context.dpratik3005.workers.dev
 ```
 
 2.
 
 ```text
-Original fixed-workflow study: graph context kept 20/20 executor success with 69.9% fewer schema bytes. Its learning curve was flat. A separate goal-oriented study rose 14/20 → 15/20, then plateaued; 5 failures remain. @HydraDB #HydraDB
+Original fixed-workflow study: graph context kept 20/20 executor success with 69.9% fewer schema bytes. Its learning curve was flat. A separate goal-oriented study rose 14/20 → 15/20, then plateaued; 5 failures remain. @hydra_db #HydraDB
 ```
 
 3.
@@ -51,7 +51,7 @@ https://github.com/PRADDZY/incident-context
 4.
 
 ```text
-Looking for platform/on-call developers to test whether complete tool bundles and graph receipts make agent context easier to debug. 12 tools; sandbox services + live Cloudflare status. Pilot pricing is unvalidated. @HydraDB #HydraDB
+Looking for platform/on-call developers to test whether complete tool bundles and graph receipts make agent context easier to debug. 12 tools; sandbox services + live Cloudflare status. Pilot pricing is unvalidated. @hydra_db #HydraDB
 https://github.com/PRADDZY/incident-context
 ```
 

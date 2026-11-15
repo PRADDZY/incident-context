@@ -45,7 +45,11 @@ The real-engine integration check verifies idempotent catalog seeding, actual di
 
 The Worker validates its explicit route allowlist, prompt and body limits, call normalization, quota reservation, origin failures and usage nulls. Backend fetches time out after 20 seconds, Hydra queries after five seconds, and provider HTTP reads after four seconds. There is no explicit model-inference timeout; the whole workflow is not covered by a single latency bound.
 
-Desktop, tablet and mobile browser checks exercise actual graph planning, strategy changes, node/schema inspection, catalog filtering, evaluation and feedback controls. Final live browser verification and build/CI status are recorded in the repository's completion commit; screenshots are evidence of the displayed state, not a substitute for the raw measurements. Only a walkthrough script is prepared. No video was recorded.
+The final public Playwright browser check exercised two real Workers AI workflows: the checkout sandbox returned three valid deployment observations (1,019 input tokens), and the search/provider workflow returned three live provider observations (812 input tokens). The sandbox outcome was inspected before feedback, which changed the session's counts from 1/1 to 2/1 and returned a graph receipt. These two smoke calls are separate from the locked studies; the model counter rose from 32 to 34.
+
+The final desktop and mobile Evidence views display the original flat curve and separate supplement, correct denominators and the live-comparison caveat. At a 390 px viewport, page width was 390 px, with no browser console errors. Earlier desktop, tablet and mobile checks exercised strategy changes, node/schema inspection, catalog filtering and feedback controls. Screenshots are evidence of the displayed state, not a substitute for raw measurements. Only a walkthrough script is prepared. No video was recorded.
+
+Final local validation: 63 unit/protocol tests passed, with the real-engine integration check skipped locally and passed separately on the actual engine. Main and generated Worker typechecks and the Vite build passed. GitHub Actions also runs the standard checks; it does not run Docker or the real-engine integration test.
 
 ## Reproduce
 

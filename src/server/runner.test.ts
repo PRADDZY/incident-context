@@ -47,3 +47,14 @@ test('provider status uses only the fixed endpoints and verifies the component I
   assert.equal(assessObservations(provider, [component, incidents]).success, true);
   assert.deepEqual(new Set(urls), new Set(['https://www.cloudflarestatus.com/api/v2/components.json', 'https://www.cloudflarestatus.com/api/v2/incidents/unresolved.json']));
 });
+
+test('a stalled provider read becomes a failed observation rather than a diagnosis', { timeout: 3000 }, async () => {
+  const runner = new ToolRunner(() => new Promise(() => {}), 50);
+  const provider = { ...plan, family: 'provider' as const };
+  const observation = await runner.execute(provider, { name: 'provider_incidents', arguments: { provider: 'cloudflare' } });
+  assert.equal(observation.ok, false);
+  assert.equal(observation.source, 'live');
+  assert.equal(observation.result, null);
+  assert.match(observation.error!, /timed out/);
+  assert.equal(assessObservations(provider, [observation]).success, false);
+});

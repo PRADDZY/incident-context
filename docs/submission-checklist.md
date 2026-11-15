@@ -19,7 +19,7 @@ The linked [operations guide](operations.md) covers setup and deployment. Use [r
 ## User actions before the cutoff
 
 - [ ] Open the live URL and repository from the account/network used for submission; confirm judge access and keep the existing execution host available through judging.
-- [ ] Verify the organizer's exact HydraDB X account and LinkedIn page. The supplied brief requires a tag but does not specify the handle; `@HydraDB` in the draft is unverified.
+- [ ] Check that `@hydra_db` resolves to the organizer in X and select the official HydraDB LinkedIn page in the composer. The sources for these account targets are linked in the social drafts.
 - [ ] Review and publish the X thread and LinkedIn post with the verified HydraDB account/page tagged. Add another relevant social/community post if appropriate. Save the actual post URLs.
 - [ ] Invite two or three developer friends, collect their real feedback, and retain both positive and negative results. No tester feedback or customer traction is claimed before that happens.
 - [ ] Resolve the Loom requirement. The user requested a script only, so **the required actual walkthrough video remains unmet**. Supply an actual Loom externally or obtain an explicit organizer-approved alternative. Do not submit the script as if it were a video.

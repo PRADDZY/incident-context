@@ -58,3 +58,13 @@ test('query identities survive independent clients without relying on the engine
     assert.notEqual(identities[0], identities[1]);
   } finally { server.closeAllConnections(); server.close(); }
 });
+
+test('an unresponsive engine query is aborted and remains unavailable', { timeout: 3000 }, async () => {
+  const server = createServer(() => { /* Hold the response open until the client aborts. */ }).listen(0, '127.0.0.1');
+  await new Promise<void>(resolve => server.once('listening', resolve));
+  const origin = `http://127.0.0.1:${(server.address() as { port: number }).port}`;
+  try {
+    const engine = new HydraClient({ origin, token: 'test', timeoutMs: 50 });
+    await assert.rejects(engine.query('RETURN 1'), /unreachable or query timed out/);
+  } finally { server.closeAllConnections(); server.close(); }
+});
