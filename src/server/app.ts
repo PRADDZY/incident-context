@@ -1,7 +1,7 @@
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
 import { timingSafeEqual, randomUUID } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 import { performance } from 'node:perf_hooks';
 import { z } from 'zod';
 import type { AgentRun, Bootstrap, EvaluationReport } from '../shared/contracts.ts';
@@ -17,6 +17,24 @@ const planInput = z.object({ task: z.string().min(1).max(16384), sessionId, mode
 const usage = z.object({ promptTokens: z.number().nonnegative().nullable(), completionTokens: z.number().nonnegative().nullable(), neurons: z.number().nonnegative().nullable() }).strict();
 const executeInput = z.object({ planId: z.string().min(1).max(80), sessionId, calls: z.array(z.object({ name: z.string().min(1).max(80), arguments: z.record(z.string(), z.json()) }).strict()).max(4), usage, requestedModel: z.string().min(1).max(160), returnedModel: z.string().min(1).max(160) }).strict();
 const feedbackInput = z.object({ runId: z.string().min(1).max(80), sessionId, correct: z.boolean() }).strict();
+const count = z.number().int().nonnegative();
+const supplementInput = z.object({
+  status: z.literal('complete'), study: z.literal('goal-oriented-supplement-v1'), successMetric: z.literal('observationSuccess'),
+  generatedAt: z.string().datetime(), datasetHash: z.string().regex(/^[a-f0-9]{64}$/), trainingTasks: count.positive(), heldoutTasks: count.positive(), graphVersion: count,
+  actualFeedbackUpdates: count,
+  rows: z.array(z.object({ mode: z.enum(['all', 'lexical', 'frozen', 'graph']), tasks: count.positive(), successes: count, completePrerequisites: count, meanSchemaBytes: z.number().nonnegative(), irrelevantTools: count, p50Ms: z.number().nonnegative(), p95Ms: z.number().nonnegative() })).length(4),
+  curve: z.array(z.object({ checkpoint: count, tasks: count.positive(), successes: count, meanSchemaBytes: z.number().nonnegative() })).min(2),
+  notes: z.array(z.string()),
+  trainingCheckpoints: z.array(z.object({ checkpoint: count, attempts: count, feedback: count })).min(2),
+}).refine(report => {
+  if (report.actualFeedbackUpdates > report.trainingTasks || new Set(report.rows.map(row => row.mode)).size !== 4) return false;
+  if (report.rows.some(row => row.tasks !== report.heldoutTasks || row.successes > row.tasks || row.completePrerequisites > row.tasks || row.p95Ms < row.p50Ms)) return false;
+  if (report.curve[0].checkpoint !== 0 || report.curve.at(-1)!.checkpoint !== report.trainingTasks || report.trainingCheckpoints.length !== report.curve.length) return false;
+  return report.curve.every((point, index) => {
+    const training = report.trainingCheckpoints[index], previous = report.trainingCheckpoints[index - 1];
+    return point.tasks === report.heldoutTasks && point.successes <= point.tasks && training.checkpoint === point.checkpoint && training.attempts === point.checkpoint && training.feedback <= training.attempts && (!previous || (training.checkpoint > previous.checkpoint && training.feedback >= previous.feedback));
+  }) && report.trainingCheckpoints[0].feedback === 0 && report.trainingCheckpoints.at(-1)!.feedback === report.actualFeedbackUpdates;
+});
 
 export interface ApplicationOptions { token: string; dataDir: string; graph: GraphRepository; planner: Planner; state: StateStore; runner: ToolRunner; evaluationFile?: string }
 
@@ -81,12 +99,18 @@ export function createApplication(options: ApplicationOptions) {
         send(res, 200, await state.feedback(input, (feedback, run) => planner.sessions.feedback(feedback, run.plan, run.plan.skill ? [run.plan.skill] : []))); return;
       }
       if (route === 'GET /api/evaluation') {
+        const evaluationFile = options.evaluationFile ?? join(options.dataDir, 'evaluation', 'results.json');
         let report: EvaluationReport;
-        try { report = JSON.parse(await readFile(options.evaluationFile ?? join(options.dataDir, 'evaluation', 'results.json'), 'utf8')) as EvaluationReport; }
+        try { report = JSON.parse(await readFile(evaluationFile, 'utf8')) as EvaluationReport; }
         catch (error) {
           if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
           report = { status: 'pending', generatedAt: null, datasetHash: null, trainingTasks: 0, heldoutTasks: 0, graphVersion: state.graphVersion, rows: [], curve: [], notes: ['No benchmark artifact exists yet. No improvement or model success is claimed.'] };
         }
+        delete report.supplement;
+        try {
+          const parsed = supplementInput.safeParse(JSON.parse(await readFile(join(dirname(evaluationFile), 'ambiguity-results.json'), 'utf8')));
+          if (parsed.success) report.supplement = parsed.data;
+        } catch { /* The supplementary artifact is optional; unavailable or incomplete evidence is omitted. */ }
         send(res, 200, report); return;
       }
       throw new ApiError(404, 'Route not found');

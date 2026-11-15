@@ -241,6 +241,33 @@ details[open] > summary > svg:last-child, details[open] > summary > span:last-ch
 .workspace-footer button:hover { background: transparent; color: var(--text); }
 .report-scope { display: flex; justify-content: space-between; gap: 20px; margin: 7px 0 20px; font-size: 11px; color: var(--muted); }
 .benchmark-panel { margin-bottom: 20px; }
+.study-original-summary { padding: 0 0 19px; }
+.study-original-summary h2 { margin-bottom: 7px; }
+.study-original-summary p { color: var(--muted); font-size: 13px; max-width: 900px; }
+.supplement-panel, .supplement-unavailable { margin-bottom: 24px; }
+.supplement-unavailable > p { padding: 18px; color: var(--muted); font-size: 13px; }
+.supplement-content { padding: 18px; }
+.supplement-summary { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+.supplement-summary strong { font-size: 22px; font-weight: 400; display: flex; align-items: center; gap: 18px; }
+.supplement-summary strong svg { color: var(--muted); }
+.supplement-summary p { margin-top: 7px; color: var(--muted); font-size: 12px; }
+.supplement-counts { display: flex; gap: 24px; color: var(--muted); font-size: 12px; }
+.supplement-counts .num { color: var(--text); }
+.supplement-finding { margin-top: 17px; font-size: 13px; max-width: 900px; }
+.supplement-evidence { display: grid; grid-template-columns: minmax(0,1.3fr) minmax(230px,1fr); align-items: center; gap: 32px; margin: 10px 0 16px; }
+.supplement-evidence .curve-scroll { padding-left: 0; padding-right: 0; }
+.supplement-evidence .curve-scroll svg { min-height: 145px; }
+.supplement-checkpoints > div { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; padding: 11px 0; border-bottom: 1px solid var(--rule); font-size: 12px; text-align: right; }
+.supplement-checkpoints > .supplement-checkpoint-heading { font-size: 11px; color: var(--muted); }
+.supplement-detail { border-top: 1px solid var(--border); }
+.supplement-detail > summary { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 13px 0; font-size: 12px; }
+.supplement-detail .table-scroll { padding-left: 0; padding-right: 0; }
+.supplement-notes p { font-size: 12px; color: var(--muted); margin-bottom: 12px; }
+.supplement-notes code { font-size: 11px; }
+.live-interpretation { margin: 14px 18px 4px; color: var(--muted); font-size: 13px; max-width: 980px; }
+.results-link { margin: 0 0 28px; }
+.results-link a { display: inline-flex; align-items: center; gap: 7px; color: var(--text); font-size: 13px; text-decoration: none; border-bottom: 1px solid var(--control); padding-bottom: 5px; }
+.results-link a:hover { border-color: var(--accent); }
 .table-scroll { overflow: auto; padding: 0 18px; }
 table { width: 100%; border-collapse: collapse; font-size: 12px; }
 th { font-size: 11px; color: var(--muted); font-weight: 400; white-space: nowrap; text-align: right; height: 42px; }
@@ -301,6 +328,7 @@ td.num { font-size: 11px; white-space: nowrap; }
   .catalog-header, .catalog-tool > summary { grid-template-columns: minmax(0,1fr) 145px 150px; gap: 20px; }
 }
 @media (max-width: 900px) {
+  .supplement-counts { display: grid; gap: 8px; }
   .workbench-grid { grid-template-columns: minmax(0,1fr); }
   .graph-panel { order: 0; }
   .bundle-panel { order: 1; }
@@ -317,6 +345,14 @@ td.num { font-size: 11px; white-space: nowrap; }
   .workspace-footer { align-items: flex-start; }
 }
 @media (max-width: 680px) {
+  .supplement-summary { display: grid; gap: 18px; }
+  .supplement-counts { display: flex; flex-wrap: wrap; gap: 10px 20px; }
+  .supplement-content { padding: 14px; }
+  .supplement-panel .panel-heading { display: grid; gap: 3px; }
+  .supplement-evidence { grid-template-columns: minmax(0,1fr); gap: 12px; }
+  .supplement-evidence .curve-scroll svg { min-height: 130px; }
+  .supplement-summary strong { font-size: 21px; }
+  .live-interpretation { margin-left: 14px; margin-right: 14px; }
   :root { font-size: 14px; }
   .app-body { margin-left: 0; }
   .icon-rail { inset: auto 0 0; width: 100%; height: 60px; border-right: 0; border-top: 1px solid var(--border); flex-direction: row; }

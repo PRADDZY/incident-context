@@ -191,4 +191,21 @@ export interface EvaluationReport {
   curve: { checkpoint: number; tasks: number; successes: number; meanSchemaBytes: number }[];
   notes: string[];
   live?: { tasks: number; rows: { mode: Mode; successes: number; runIds: string[] }[] };
+  supplement?: EvaluationSupplement;
+}
+
+export interface EvaluationSupplement {
+  status: "complete";
+  study: "goal-oriented-supplement-v1";
+  successMetric: "observationSuccess";
+  generatedAt: string;
+  datasetHash: string;
+  trainingTasks: number;
+  heldoutTasks: number;
+  graphVersion: number;
+  rows: EvaluationRow[];
+  curve: EvaluationReport["curve"];
+  notes: string[];
+  actualFeedbackUpdates: number;
+  trainingCheckpoints: { checkpoint: number; attempts: number; feedback: number }[];
 }

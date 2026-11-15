@@ -1,0 +1,146 @@
+{
+  "status": "complete",
+  "generatedAt": "2026-11-15T17:50:07.484Z",
+  "datasetHash": "3c16994b42a6d3387b04cc6eb62eac0223a6722315d1d869cfdabee9b3c21076",
+  "trainingTasks": 40,
+  "heldoutTasks": 20,
+  "graphVersion": 60,
+  "rows": [
+    {
+      "mode": "all",
+      "tasks": 20,
+      "successes": 20,
+      "completePrerequisites": 20,
+      "meanSchemaBytes": 6560,
+      "irrelevantTools": 170,
+      "p50Ms": 105.4,
+      "p95Ms": 120.96
+    },
+    {
+      "mode": "lexical",
+      "tasks": 20,
+      "successes": 19,
+      "completePrerequisites": 19,
+      "meanSchemaBytes": 3882,
+      "irrelevantTools": 76,
+      "p50Ms": 121.45,
+      "p95Ms": 137.58
+    },
+    {
+      "mode": "frozen",
+      "tasks": 20,
+      "successes": 20,
+      "completePrerequisites": 20,
+      "meanSchemaBytes": 1976,
+      "irrelevantTools": 0,
+      "p50Ms": 126.89,
+      "p95Ms": 144.6
+    },
+    {
+      "mode": "graph",
+      "tasks": 20,
+      "successes": 20,
+      "completePrerequisites": 20,
+      "meanSchemaBytes": 1976,
+      "irrelevantTools": 0,
+      "p50Ms": 118.88,
+      "p95Ms": 153.62
+    }
+  ],
+  "curve": [
+    {
+      "checkpoint": 0,
+      "tasks": 20,
+      "successes": 20,
+      "meanSchemaBytes": 1976
+    },
+    {
+      "checkpoint": 10,
+      "tasks": 20,
+      "successes": 20,
+      "meanSchemaBytes": 1976
+    },
+    {
+      "checkpoint": 20,
+      "tasks": 20,
+      "successes": 20,
+      "meanSchemaBytes": 1976
+    },
+    {
+      "checkpoint": 40,
+      "tasks": 20,
+      "successes": 20,
+      "meanSchemaBytes": 1976
+    }
+  ],
+  "notes": [
+    "Deterministic FIXED workflow policy, not LLM task accuracy. Successes count actual /internal/execute run.success === true; no model was called and token/neurons usage is null.",
+    "Schema coverage, actual executor completion, independently graded observations, and live model task success are separate outcomes. Independent observation failures and raw runs are retained in resultsdetail.json.",
+    "Independent gold is locked in dataset.json before feedback. Expected tool sets are investigation requirements, not graph-edge or selected-skill outputs. A complete bundle alone never counts as executor success.",
+    "40 ordered training cases receive feedback from actual executor outcomes only. 20 held-out tasks receive no feedback. Checkpoints 0/10/20/40 each freeze weights and graph version; flat or worsening curves are retained.",
+    "Full catalog and lexical baselines use the same three-call workflow and resolved identifiers as both graph arms. Full catalog selects all 12 schemas; irrelevant schema counts include every selected schema outside the independent useful set.",
+    "Bytes are UTF-8 JSON of the exact model tool array [{name,description,parameters}], independently recomputed. p50/p95 are nearest-rank HTTP /api/plan round-trip milliseconds, excluding tool execution.",
+    "IrrelevantTools is the total selected irrelevant schemas across cases. Byte means exclude failed plan requests, whose missing measurements remain null in detail; transport failures count as failed executions and are never retried.",
+    "Four service fixtures underlie 60 varied task narratives: two train services and two held-out services. This measures service/alias and wording transfer within two families, not 60 distinct real incidents or statistical generalization.",
+    "Provider reads are real live Cloudflare status observations. Status values, incident counts, and latency may change between arms. Only observation presence, identity, source, and timestamp are graded.",
+    "Session service-memory writes are completed before measured passes; all bootstrap and receipt graph versions and weight vectors must remain unchanged within each pass. No topology ablation or load claims are made here.",
+    "Actual Worker/model requests: ten preselected held-out tasks paired across all, frozen and graph, once per arm. Arm order rotates by task index. All HTTP failures are retained and no request is retried.",
+    "No live held-out feedback is submitted. All arms use the same task, trained session, backend, Worker model endpoint, temperature 0, max completion 256, and four-call cap. Frozen ignores training weights.",
+    "Rows.successes count actual executor run.success === true returned through the model path. Independent observation success, exact returned model identity, usage (including nulls), calls and failures remain in case evidence.",
+    "HTTP request attempts need not equal inference calls: a request may abstain before reservation or fail after reservation. The persistent before/after budget counters record reserved attempts.",
+    "Provider availability may change between serial arms. This small fixed comparison supports descriptive paired results, without a significance claim or selective reruns.",
+    "Live evidence: /data/workspace/hydradb/incident-context/evaluation/live-results.json; reserved model attempts 2 -> 32."
+  ],
+  "live": {
+    "tasks": 10,
+    "rows": [
+      {
+        "mode": "all",
+        "successes": 7,
+        "runIds": [
+          "90e38567-5476-4fa4-a690-c818fb5be132",
+          "34839696-6301-4b31-bb74-f8b42ed6aa57",
+          "66bf683a-cbaf-4ffc-8207-e74cdefedb28",
+          "7b94a549-2b83-4a30-813d-7e7457cc1c57",
+          "21b69860-8bd8-4c54-9294-9250f0ca66e6",
+          "20aecfd6-001a-4576-8c3a-b3a5b8014cf4",
+          "8bc40a67-d437-45da-acde-f6b06a20b7dd",
+          "4edfcb00-5585-4f57-9f2d-9ffe452fe554",
+          "b3aee925-336c-405b-87aa-4611bea53c3b",
+          "6eac2d47-330f-4088-9562-db11fcb33871"
+        ]
+      },
+      {
+        "mode": "frozen",
+        "successes": 9,
+        "runIds": [
+          "644ff37f-4a27-404b-ae85-a9a19f7d67bb",
+          "e8aac6de-1c05-445b-adb7-f6a7bbeb88e9",
+          "5478d967-9e5c-474d-a252-677858f5b277",
+          "e634e2cd-bbe7-4535-ac5b-fc8243ddd66e",
+          "ab891bd1-f5f1-41e6-9a03-bc4040e87376",
+          "ac421368-c6f5-47f9-9e9b-fd28b99e5545",
+          "c16ad2c0-dd35-498d-86e2-8590be9aae7b",
+          "4088e571-7983-42ad-9ad5-72971e15882b",
+          "c7492434-544f-4bf4-a66d-93d76955a459"
+        ]
+      },
+      {
+        "mode": "graph",
+        "successes": 10,
+        "runIds": [
+          "e3f54068-e45a-4960-9a8c-10618c488ed7",
+          "2aa254e4-b1b4-4e1e-86c2-712658acb48f",
+          "4b494861-2603-4182-b8b7-f59f8ac9d6e6",
+          "7b6f9099-b801-45ac-baf3-0f01e1d16261",
+          "f0d9a03e-7b70-4fff-b1ba-8995a4405523",
+          "919c0151-4b4e-446f-bfac-c59795c0d3c6",
+          "afdee42e-e319-408a-8058-6796c2792762",
+          "cde32dd5-be34-4104-b23f-3c369cca4374",
+          "be54161e-cb54-4f58-b95e-197cd704d1be",
+          "2a203fdf-3489-48ba-aa75-19a04837cda4"
+        ]
+      }
+    ]
+  }
+}

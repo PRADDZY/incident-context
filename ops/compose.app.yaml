@@ -1,0 +1,58 @@
+# Optional Linux services. Use together with compose.yaml; see docs/operations.md.
+services:
+  backend:
+    image: node:22-slim
+    restart: unless-stopped
+    user: "${HYDRA_UID:-1000}:${HYDRA_GID:-1000}"
+    mem_limit: 512m
+    network_mode: host
+    working_dir: /app
+    read_only: true
+    tmpfs:
+      - /tmp
+    volumes:
+      - type: bind
+        source: "${APP_SOURCE_DIR:?Set APP_SOURCE_DIR to the absolute repository path}"
+        target: /app
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: "${API_DATA_DIR:?Set API_DATA_DIR to an existing persistent directory}"
+        target: /state
+        bind:
+          create_host_path: false
+      - type: bind
+        source: "${BACKEND_TOKEN_FILE:?Set BACKEND_TOKEN_FILE to an existing secret file}"
+        target: /run/secrets/backend-token
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: "${HYDRA_DATA_DIR:?Set HYDRA_DATA_DIR to an existing persistent directory}/auth-token"
+        target: /run/secrets/hydra-token
+        read_only: true
+        bind:
+          create_host_path: false
+    environment:
+      HOST: 127.0.0.1
+      PORT: "8788"
+      HYDRA_URL: http://127.0.0.1:8443
+      HYDRA_TOKEN_FILE: /run/secrets/hydra-token
+      BACKEND_TOKEN_FILE: /run/secrets/backend-token
+      DATA_DIR: /state
+      EVALUATION_FILE: /app/evaluation/results.json
+    command: ["node", "--import", "tsx", "src/server/index.ts"]
+    depends_on:
+      hydradb:
+        condition: service_started
+
+  tunnel:
+    image: cloudflare/cloudflared@sha256:b94b96edf2c9c4360f8879c8580cfaa99077f19c849ec595ca2f711b27d4f344
+    restart: unless-stopped
+    network_mode: host
+    read_only: true
+    command: ["tunnel", "--no-autoupdate", "--url", "http://127.0.0.1:8788", "--protocol", "http2"]
+    depends_on:
+      backend:
+        condition: service_started
